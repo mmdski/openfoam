@@ -64,7 +64,7 @@ class faPatchMapper
 :
     public faPatchFieldMapper
 {
-    // Private data
+    // Private Data
 
         //- Reference to patch
         const faPatch& patch_;

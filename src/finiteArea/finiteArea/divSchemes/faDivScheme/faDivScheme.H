@@ -72,12 +72,14 @@ protected:
 
     // Protected Data
 
+        //- Reference to mesh
         const faMesh& mesh_;
 
+        //- Edge interpolation scheme
         tmp<edgeInterpolationScheme<Type>> tinterpScheme_;
 
 
-    // Private Member Functions
+    // Protected Member Functions
 
         //- No copy construct
         divScheme(const divScheme&) = delete;
@@ -148,10 +150,7 @@ public:
     // Member Functions
 
         //- Return mesh reference
-        const faMesh& mesh() const
-        {
-            return mesh_;
-        }
+        const faMesh& mesh() const noexcept { return mesh_; }
 
         virtual tmp
         <

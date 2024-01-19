@@ -60,6 +60,7 @@ class skewCorrectedEdgeInterpolation
 {
     // Private Data
 
+        //- Edge-interpolation scheme
         tmp<edgeInterpolationScheme<Type>> tScheme_;
 
 
@@ -115,7 +116,7 @@ public:
             return tScheme_().weights(vf);
         }
 
-         //- Return true if this scheme uses an explicit correction
+        //- Return true if this scheme uses an explicit correction
         virtual bool corrected() const
         {
             return

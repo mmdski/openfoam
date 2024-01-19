@@ -70,9 +70,9 @@ limitedLnGrad<Type>::correction
            *mag(lnGradScheme<Type>::lnGrad(vf, deltaCoeffs(vf), "orthSnGrad"))
            /(
                 (1 - limitCoeff_)*mag(corr)
-              + dimensionedScalar("small", corr.dimensions(), SMALL)
+              + dimensionedScalar(corr.dimensions(), SMALL)
             ),
-            dimensionedScalar("one", dimless, 1.0)
+            dimensionedScalar(dimless, Foam::one{})
         )
     );
 

@@ -68,7 +68,7 @@ class limitedLnGrad
 :
     public lnGradScheme<Type>
 {
-    // Private data
+    // Private Data
 
         //- Limiter.  0 = no limiting, 1 = full limiting
         scalar limitCoeff_;

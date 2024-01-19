@@ -60,7 +60,7 @@ class faAreaMapper
 :
     public morphFieldMapper
 {
-    // Private data
+    // Private Data
 
         //- Reference to mesh mapper
         const faMesh& mesh_;

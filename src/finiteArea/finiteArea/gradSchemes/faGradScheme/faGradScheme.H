@@ -50,6 +50,7 @@ SourceFiles
 namespace Foam
 {
 
+// Forward Declarations
 class faMesh;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -66,8 +67,9 @@ class gradScheme
 :
     public refCount
 {
-    // Private data
+    // Private Data
 
+        //- Reference to mesh
         const faMesh& mesh_;
 
 
@@ -120,7 +122,7 @@ public:
     // Member Functions
 
         //- Return mesh reference
-        const faMesh& mesh() const { return mesh_; }
+        const faMesh& mesh() const noexcept { return mesh_; }
 
         //- Calculate and return the grad of the given field.
         //  Used by grad either to recalculate the cached gradient when it is

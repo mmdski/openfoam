@@ -69,6 +69,7 @@ class faceLimitedGrad
 {
     // Private Data
 
+        //- Basic gradient scheme
         tmp<fa::gradScheme<Type>> basicGradScheme_;
 
         //- Limiter coefficient

@@ -68,7 +68,7 @@ class mapPolyMesh;
 
 class faMeshMapper
 {
-    // Private data
+    // Private Data
 
         //- Reference to mesh
         const faMesh& mesh_;

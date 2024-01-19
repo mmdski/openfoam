@@ -61,13 +61,10 @@ class faEdgeMapper
 :
     public morphFieldMapper
 {
-    // Private data
+    // Private Data
 
         //- Reference to mesh
         const faMesh& mesh_;
-
-        //- Reference to mapPolyMesh
-        //const mapPolyMesh& mpm_;
 
         //- Old mesh size
         label sizeBeforeMapping_;
