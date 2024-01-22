@@ -72,15 +72,6 @@ class convectionScheme
         const faMesh& mesh_;
 
 
-    // Private Member Functions
-
-        //- No copy construct
-        convectionScheme(const convectionScheme&) = delete;
-
-        //- No copy assignment
-        void operator=(const convectionScheme&) = delete;
-
-
 public:
 
     // Declare run-time constructor selection tables
@@ -97,6 +88,15 @@ public:
             ),
             (mesh, faceFlux, schemeData)
         );
+
+
+    // Generated Methods
+
+        //- No copy construct
+        convectionScheme(const convectionScheme&) = delete;
+
+        //- No copy assignment
+        void operator=(const convectionScheme&) = delete;
 
 
     // Constructors

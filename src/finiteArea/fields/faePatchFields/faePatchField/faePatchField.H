@@ -109,6 +109,12 @@ public:
     TypeName("faePatchField");
 
 
+    // Generated Methods
+
+        //- No copy assignment
+        void operator=(const faePatchFieldBase&) = delete;
+
+
     // Constructors
 
         //- Construct from patch

@@ -65,6 +65,15 @@ public:
     TypeNameNoDebug("faBoundaryMesh");
 
 
+    // Generated Methods
+
+        //- No copy construct
+        faBoundaryMeshEntries(const faBoundaryMeshEntries&) = delete;
+
+        //- No copy assignment
+        void operator=(const faBoundaryMeshEntries&) = delete;
+
+
     // Constructors
 
         //- Read construct from IOobject. Never register!

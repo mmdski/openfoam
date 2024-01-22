@@ -126,6 +126,15 @@ public:
     ClassName("edgeInterpolation");
 
 
+    // Generated Methods
+
+        //- No copy construct
+        edgeInterpolation(const edgeInterpolation&) = delete;
+
+        //- No copy assignment
+        void operator=(const edgeInterpolation&) = delete;
+
+
     // Constructors
 
         //- Construct given an faMesh

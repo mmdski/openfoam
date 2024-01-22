@@ -66,19 +66,19 @@ class gaussConvectionScheme
         tmp<edgeInterpolationScheme<Type>> tinterpScheme_;
 
 
-    // Private Member Functions
+public:
+
+    //- Runtime type information
+    TypeName("Gauss");
+
+
+    // Generated Methods
 
         //- No copy construct
         gaussConvectionScheme(const gaussConvectionScheme&) = delete;
 
         //- No copy assignment
         void operator=(const gaussConvectionScheme&) = delete;
-
-
-public:
-
-    //- Runtime type information
-    TypeName("Gauss");
 
 
     // Constructors

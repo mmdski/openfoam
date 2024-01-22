@@ -84,17 +84,19 @@ class edgeLimitedGrad
         ) const;
 
 
+public:
+
+    //- RunTime type information
+    TypeName("edgeLimited");
+
+
+    // Generated Methods
+
         //- No copy construct
         edgeLimitedGrad(const edgeLimitedGrad&) = delete;
 
         //- No copy assignment
         void operator=(const edgeLimitedGrad&) = delete;
-
-
-public:
-
-    //- RunTime type information
-    TypeName("edgeLimited");
 
 
     // Constructors

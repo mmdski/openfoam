@@ -74,16 +74,19 @@ class limitedLnGrad
         scalar limitCoeff_;
 
 
-    // Private Member Functions
-
-        //- No copy assignment
-        void operator=(const limitedLnGrad&) = delete;
-
-
 public:
 
     //- Runtime type information
     TypeName("limited");
+
+
+    // Generated Methods
+
+        //- No copy construct
+        limitedLnGrad(const limitedLnGrad&) = delete;
+
+        //- No copy assignment
+        void operator=(const limitedLnGrad&) = delete;
 
 
     // Constructors

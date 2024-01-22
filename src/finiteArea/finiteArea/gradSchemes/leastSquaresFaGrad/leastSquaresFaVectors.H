@@ -76,6 +76,15 @@ public:
     TypeName("leastSquaresFaVectors");
 
 
+    // Generated Methods
+
+        //- No copy construct
+        leastSquaresFaVectors(const leastSquaresFaVectors&) = delete;
+
+        //- No copy assignment
+        void operator=(const leastSquaresFaVectors&) = delete;
+
+
     // Constructors
 
         //- Construct given an faMesh

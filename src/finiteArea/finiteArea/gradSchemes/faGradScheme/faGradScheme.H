@@ -70,15 +70,6 @@ class gradScheme
         const faMesh& mesh_;
 
 
-    // Private Member Functions
-
-        //- No copy construct
-        gradScheme(const gradScheme&) = delete;
-
-        //- No copy assignment
-        void operator=(const gradScheme&) = delete;
-
-
 public:
 
     // Declare run-time constructor selection tables
@@ -91,6 +82,15 @@ public:
             (const faMesh& mesh, Istream& schemeData),
             (mesh, schemeData)
         );
+
+
+    // Generated Methods
+
+        //- No copy construct
+        gradScheme(const gradScheme&) = delete;
+
+        //- No copy assignment
+        void operator=(const gradScheme&) = delete;
 
 
     // Constructors

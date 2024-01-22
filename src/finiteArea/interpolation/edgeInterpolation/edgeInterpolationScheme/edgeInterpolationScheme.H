@@ -63,12 +63,6 @@ class edgeInterpolationScheme
         const faMesh& mesh_;
 
 
-    // Private Member Functions
-
-        //- No copy assignment
-        void operator=(const edgeInterpolationScheme&) = delete;
-
-
 public:
 
     // Declare run-time constructor selection tables
@@ -97,6 +91,15 @@ public:
             ),
             (mesh, faceFlux, schemeData)
         );
+
+
+    // Private Member Functions
+
+        //- No copy construct
+        edgeInterpolationScheme(const edgeInterpolationScheme&) = delete;
+
+        //- No copy assignment
+        void operator=(const edgeInterpolationScheme&) = delete;
 
 
     // Constructors

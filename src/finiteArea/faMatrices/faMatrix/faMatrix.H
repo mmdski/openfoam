@@ -237,6 +237,15 @@ public:
 
     public:
 
+    // Generated Methods
+
+        //- No copy construct
+        faSolver(const faSolver&) = delete;
+
+        //- No copy assignment
+        void operator=(const faSolver&) = delete;
+
+
         // Constructors
 
             faSolver(faMatrix<Type>& faMat, autoPtr<lduMatrix::solver>&& sol)

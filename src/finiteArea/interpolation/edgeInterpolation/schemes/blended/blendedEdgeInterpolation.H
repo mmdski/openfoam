@@ -62,19 +62,19 @@ class blendedEdgeInterpolation
         const scalar blendingFactor_;
 
 
-    // Private Member Functions
+public:
+
+    //- Runtime type information
+    TypeName("blended");
+
+
+    // Generated Methods
 
         //- No copy construct
         blendedEdgeInterpolation(const blendedEdgeInterpolation&) = delete;
 
         //- No copy assignment
         void operator=(const blendedEdgeInterpolation&) = delete;
-
-
-public:
-
-    //- Runtime type information
-    TypeName("blended");
 
 
     // Constructors

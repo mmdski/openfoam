@@ -58,16 +58,19 @@ class fourthLnGrad
 :
     public lnGradScheme<Type>
 {
-    // Private Member Functions
-
-        //- No copy assignment
-        void operator=(const fourthLnGrad&) = delete;
-
-
 public:
 
     //- Runtime type information
     TypeName("fourth");
+
+
+    // Generated Methods
+
+        //- No copy construct
+        fourthLnGrad(const fourthLnGrad&) = delete;
+
+        //- No copy assignment
+        void operator=(const fourthLnGrad&) = delete;
 
 
     // Constructors

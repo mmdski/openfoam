@@ -98,12 +98,6 @@ class faAreaMapper
 
     // Private Member Functions
 
-        //- No copy construct
-        faAreaMapper(const faAreaMapper&) = delete;
-
-        //- No copy assignment
-        void operator=(const faAreaMapper&) = delete;
-
         //- Calculate addressing
         void calcAddressing() const;
 
@@ -112,6 +106,15 @@ class faAreaMapper
 
 
 public:
+
+    // Generated Methods
+
+        //- No copy construct
+        faAreaMapper(const faAreaMapper&) = delete;
+
+        //- No copy assignment
+        void operator=(const faAreaMapper&) = delete;
+
 
     //- Construct from components
     faAreaMapper

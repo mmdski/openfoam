@@ -57,6 +57,15 @@ class edgeMesh
 {
 public:
 
+    // Generated Methods
+
+        //- No copy construct
+        edgeMesh(const edgeMesh&) = delete;
+
+        //- No copy assignment
+        void operator=(const edgeMesh&) = delete;
+
+
     // Constructors
 
         //- Construct finite-area edge mesh faMesh reference

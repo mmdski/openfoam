@@ -62,6 +62,15 @@ class GammaWeight
 
 public:
 
+    // Generated Methods
+
+        //- No copy construct
+        GammaWeight(const GammaWeight&) = delete;
+
+        //- No copy assignment
+        void operator=(const GammaWeight&) = delete;
+
+
     GammaWeight(Istream& is)
     :
         k_(readScalar(is))

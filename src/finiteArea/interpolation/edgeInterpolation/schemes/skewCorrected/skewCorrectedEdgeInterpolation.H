@@ -68,6 +68,16 @@ public:
     TypeName("skewCorrected");
 
 
+    // Generated Methods
+
+        //- No copy construct
+        skewCorrectedEdgeInterpolation(const skewCorrectedEdgeInterpolation&)
+            = delete;
+
+        //- No copy assignment
+        void operator=(const skewCorrectedEdgeInterpolation&) = delete;
+
+
     // Constructors
 
         //- Construct from Istream
@@ -94,13 +104,6 @@ public:
                 edgeInterpolationScheme<Type>::New(mesh, faceFlux, is)
             )
         {}
-
-        //- No copy construct
-        skewCorrectedEdgeInterpolation(const skewCorrectedEdgeInterpolation&) =
-            delete;
-
-        //- No copy assignment
-        void operator=(const skewCorrectedEdgeInterpolation&) = delete;
 
 
     // Member Functions

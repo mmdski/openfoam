@@ -77,15 +77,6 @@ protected:
         tmp<edgeInterpolationScheme<Type>> tinterpScheme_;
 
 
-    // Protected Member Functions
-
-        //- No copy construct
-        divScheme(const divScheme&) = delete;
-
-        //- No copy assignment
-        void operator=(const divScheme&) = delete;
-
-
 public:
 
     // Declare run-time constructor selection tables
@@ -98,6 +89,15 @@ public:
             (const faMesh& mesh, Istream& schemeData),
             (mesh, schemeData)
         );
+
+
+    // Generated Methods
+
+        //- No copy construct
+        divScheme(const divScheme&) = delete;
+
+        //- No copy assignment
+        void operator=(const divScheme&) = delete;
 
 
     // Constructors

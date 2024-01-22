@@ -75,15 +75,6 @@ protected:
         const faMesh& mesh_;
 
 
-    // Private Member Functions
-
-        //- No copy construct
-        faD2dt2Scheme(const faD2dt2Scheme&) = delete;
-
-        //- No copy assignment
-        void operator=(const faD2dt2Scheme&) = delete;
-
-
 public:
 
     //- Runtime type information
@@ -100,6 +91,15 @@ public:
             (const faMesh& mesh, Istream& schemeData),
             (mesh, schemeData)
         );
+
+
+    // Generated Methods
+
+        //- No copy construct
+        faD2dt2Scheme(const faD2dt2Scheme&) = delete;
+
+        //- No copy assignment
+        void operator=(const faD2dt2Scheme&) = delete;
 
 
     // Constructors

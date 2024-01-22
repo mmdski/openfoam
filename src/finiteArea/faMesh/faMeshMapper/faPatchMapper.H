@@ -88,13 +88,6 @@ class faPatchMapper
 
     // Private Member Functions
 
-        //- No copy construct
-        faPatchMapper(const faPatchMapper&) = delete;
-
-        //- No copy assignment
-        void operator=(const faPatchMapper&) = delete;
-
-
         //- Calculate addressing for mapping with inserted cells
         void calcAddressing() const;
 
@@ -103,6 +96,15 @@ class faPatchMapper
 
 
 public:
+
+    // Generated Methods
+
+        //- No copy construct
+        faPatchMapper(const faPatchMapper&) = delete;
+
+        //- No copy assignment
+        void operator=(const faPatchMapper&) = delete;
+
 
     //- Construct from mappers
     faPatchMapper
