@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017, 2020 OpenFOAM Foundation
-    Copyright (C) 2017-2023 OpenCFD Ltd.
+    Copyright (C) 2017-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -103,9 +103,7 @@ void Foam::Cloud<ParticleType>::writeCloudUniformProperties() const
 
     labelList np(Pstream::nProcs(), Zero);
     np[Pstream::myProcNo()] = ParticleType::particleCount_;
-
-    // FIXME: replace with  Pstream::allGatherList(np);
-    Pstream::listCombineReduce(np, maxEqOp<label>());
+    Pstream::allGatherList(np);
 
     uniformPropsDict.add
     (

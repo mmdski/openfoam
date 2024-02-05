@@ -183,19 +183,23 @@ void Foam::triangulatedPatch::update()
         ++iter;
     }
 
-    // FIXME: use allGatherList of subslice
-    scalarList procSumWght(numProc+1, Foam::zero{});
-    procSumWght[myProci+1] = patchArea;
-    Pstream::listCombineReduce(procSumWght, maxEqOp<scalar>());
+    scalarList procSumArea(numProc+1);
+    procSumArea[0] = 0;
 
-    // Convert to cumulative
-    for (label i = 1; i < procSumWght.size(); ++i)
     {
-        procSumWght[i] += procSumWght[i-1];
+        scalarList::subList slice(procSumArea, numProc, 1);
+        slice[myProci] = patchArea;
+        Pstream::allGatherList(slice);
     }
 
-    const scalar offset = procSumWght[myProci];
-    const scalar totalArea = procSumWght.back();
+    // Convert to cumulative
+    for (label i = 1; i < procSumArea.size(); ++i)
+    {
+        procSumArea[i] += procSumArea[i-1];
+    }
+
+    const scalar offset = procSumArea[myProci];
+    const scalar totalArea = procSumArea.back();
 
     // Apply processor offset and normalise - for a global 0-1 interval
     for (scalar& w : triWght_)
