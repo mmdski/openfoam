@@ -6,6 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2016 OpenFOAM Foundation
+    Copyright (C) 2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -48,7 +49,10 @@ void Foam::LUDecompose
     label& sign
 )
 {
-    label m = matrix.m();
+    const label m = matrix.m();
+
+    pivotIndices.resize_nocopy(m);
+
     scalar vv[m];
     sign = 1;
 
@@ -150,7 +154,7 @@ void Foam::LUDecompose
 void Foam::LUDecompose(scalarSymmetricSquareMatrix& matrix)
 {
     // Store result in upper triangular part of matrix
-    label size = matrix.m();
+    const label size = matrix.m();
 
     // Set upper triangular parts to zero.
     for (label j = 0; j < size; ++j)
@@ -223,7 +227,7 @@ void Foam::multiply
             << abort(FatalError);
     }
 
-    ans = scalarRectangularMatrix(A.m(), C.n(), Zero);
+    ans = scalarRectangularMatrix(A.m(), C.n(), Foam::zero{});
 
     for (label i = 0; i < A.m(); ++i)
     {
