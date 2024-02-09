@@ -352,11 +352,16 @@ Foam::PtrList<Foam::dictionary> Foam::blockMesh::patchDicts() const
 
     PtrList<dictionary> patchDicts(topoPatches.size());
 
+    OCharStream os;
+    ISpanStream is;
+
     forAll(topoPatches, patchi)
     {
-        OStringStream os;
+        os.rewind();
         topoPatches[patchi].write(os);
-        IStringStream is(os.str());
+
+        is.reset(os.view());
+
         patchDicts.set(patchi, new dictionary(is));
     }
     return patchDicts;

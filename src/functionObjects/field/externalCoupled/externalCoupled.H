@@ -198,7 +198,6 @@ class externalCoupled
     public functionObjects::timeFunctionObject,
     public externalFileCoupler
 {
-
     // Private Member Data
 
         //- Calculation frequency
@@ -279,7 +278,7 @@ class externalCoupled
         (
             const label nRows,
             autoPtr<IFstream>& masterFilePtr,
-            OStringStream& data
+            OCharStream& data
         ) const;
 
         //- Helper: append data from all processors onto master

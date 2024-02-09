@@ -173,15 +173,18 @@ void createFieldFiles
 
         // Expand all of the dictionary redirections and remove unnecessary
         // entries
-        OStringStream os;
+
+        OCharStream os;
         os  << field;
+        ISpanStream is(os.view());
 
         entry::disableFunctionEntries = 0;
-        dictionary field2(IStringStream(os.str())());
+        dictionary field2(is);
         entry::disableFunctionEntries = 1;
         field2.remove("#include");
         field2.remove("initialConditions");
         field2.remove("boundaryConditions");
+        }
 
         // Construct and write field dictionary. Note use of localIOdictionary
         localIOdictionary fieldOut

@@ -175,7 +175,7 @@ void Foam::functionObjects::externalCoupled::readLines
 (
     const label nRows,
     autoPtr<IFstream>& masterFilePtr,
-    OStringStream& lines
+    OCharStream& lines
 ) const
 {
     // Get sizes for all processors

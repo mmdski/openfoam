@@ -228,9 +228,9 @@ Foam::codedMixedFvPatchField<Type>::redirectPatchField() const
         // Make sure to construct the patchfield with up-to-date value
 
         // Write the data from the mixed b.c.
-        OStringStream os;
+        OCharStream os;
         this->parent_bctype::write(os);
-        IStringStream is(os.str());
+        ISpanStream is(os.view());
         // Construct dictionary from it.
         dictionary constructDict(is);
 

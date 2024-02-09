@@ -117,7 +117,7 @@ bool Foam::functionObjects::externalCoupled::readData
                 );
 
                 // Read from master into local stream
-                OStringStream os;
+                OCharStream os;
                 readLines
                 (
                     bf[patchi].size(),      // number of lines to read
@@ -126,7 +126,9 @@ bool Foam::functionObjects::externalCoupled::readData
                 );
 
                 // Pass responsibility for all reading over to bc
-                pf.readData(IStringStream(os.str())());
+                ISpanStream is(os.view());
+
+                pf.readData(is);
 
                 // Update the value from the read coefficient. Bypass any
                 // additional processing by derived type.
