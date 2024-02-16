@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2016 OpenFOAM Foundation
-    Copyright (C) 2019 OpenCFD Ltd.
+    Copyright (C) 2019-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -95,27 +95,25 @@ void Foam::lduMatrix::operator=(const lduMatrix& A)
         return;  // Self-assignment is a no-op
     }
 
-    if (A.lowerPtr_)
+    if (A.hasLower())
     {
         lower() = A.lower();
     }
-    else if (lowerPtr_)
+    else
     {
-        delete lowerPtr_;
-        lowerPtr_ = nullptr;
+        lowerPtr_.reset(nullptr);
     }
 
-    if (A.upperPtr_)
+    if (A.hasUpper())
     {
         upper() = A.upper();
     }
-    else if (upperPtr_)
+    else
     {
-        delete upperPtr_;
-        upperPtr_ = nullptr;
+        upperPtr_.reset(nullptr);
     }
 
-    if (A.diagPtr_)
+    if (A.hasDiag())
     {
         diag() = A.diag();
     }
@@ -143,7 +141,7 @@ void Foam::lduMatrix::negate()
 
 void Foam::lduMatrix::operator+=(const lduMatrix& A)
 {
-    if (A.diagPtr_)
+    if (A.hasDiag())
     {
         diag() += A.diag();
     }
@@ -168,7 +166,7 @@ void Foam::lduMatrix::operator+=(const lduMatrix& A)
     }
     else if (asymmetric() && A.symmetric())
     {
-        if (A.upperPtr_)
+        if (A.hasUpper())
         {
             lower() += A.upper();
             upper() += A.upper();
@@ -187,12 +185,12 @@ void Foam::lduMatrix::operator+=(const lduMatrix& A)
     }
     else if (diagonal())
     {
-        if (A.upperPtr_)
+        if (A.hasUpper())
         {
             upper() = A.upper();
         }
 
-        if (A.lowerPtr_)
+        if (A.hasLower())
         {
             lower() = A.lower();
         }
@@ -247,7 +245,7 @@ void Foam::lduMatrix::operator-=(const lduMatrix& A)
     }
     else if (asymmetric() && A.symmetric())
     {
-        if (A.upperPtr_)
+        if (A.hasUpper())
         {
             lower() -= A.upper();
             upper() -= A.upper();
@@ -266,12 +264,12 @@ void Foam::lduMatrix::operator-=(const lduMatrix& A)
     }
     else if (diagonal())
     {
-        if (A.upperPtr_)
+        if (A.hasUpper())
         {
             upper() = -A.upper();
         }
 
-        if (A.lowerPtr_)
+        if (A.hasLower())
         {
             lower() = -A.lower();
         }

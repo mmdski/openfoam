@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
-    Copyright (C) 2019-2023 OpenCFD Ltd.
+    Copyright (C) 2019-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -93,19 +93,25 @@ class LduMatrix
         const lduMesh& lduMesh_;
 
         //- Diagonal coefficients
-        Field<DType> *diagPtr_;
+        std::unique_ptr<Field<DType>> diagPtr_;
 
         //- Off-diagonal coefficients
-        Field<LUType> *upperPtr_, *lowerPtr_;
+        std::unique_ptr<Field<LUType>> upperPtr_;
+
+        //- Off-diagonal coefficients
+        std::unique_ptr<Field<LUType>> lowerPtr_;
 
         //- Source
-        Field<Type> *sourcePtr_;
+        std::unique_ptr<Field<Type>> sourcePtr_;
 
         //- Field interfaces (processor patches etc.)
         LduInterfaceFieldPtrsList<Type> interfaces_;
 
         //- Off-diagonal coefficients for interfaces
-        FieldField<Field, LUType> interfacesUpper_, interfacesLower_;
+        FieldField<Field, LUType> interfacesUpper_;
+
+        //- Off-diagonal coefficients for interfaces
+        FieldField<Field, LUType> interfacesLower_;
 
 
 public:
@@ -485,12 +491,12 @@ public:
         LduMatrix(LduMatrix<Type, DType, LUType>&, bool reuse);
 
         //- Construct given an LDU addressed mesh and an Istream
-        //  from which the coefficients are read
+        //- from which the coefficients are read
         LduMatrix(const lduMesh&, Istream&);
 
 
     //- Destructor
-    ~LduMatrix();
+    ~LduMatrix() = default;
 
 
     // Member Functions
@@ -516,13 +522,13 @@ public:
             }
 
             //- Return interfaces
-            const LduInterfaceFieldPtrsList<Type>& interfaces() const
+            const LduInterfaceFieldPtrsList<Type>& interfaces() const noexcept
             {
                 return interfaces_;
             }
 
             //- Return interfaces
-            LduInterfaceFieldPtrsList<Type>& interfaces()
+            LduInterfaceFieldPtrsList<Type>& interfaces() noexcept
             {
                 return interfaces_;
             }
@@ -530,56 +536,58 @@ public:
 
         // Access to coefficients
 
-            Field<DType>& diag();
-            Field<LUType>& upper();
-            Field<LUType>& lower();
-            Field<Type>& source();
-
-            FieldField<Field, LUType>& interfacesUpper()
-            {
-                return interfacesUpper_;
-            }
-
-            FieldField<Field, LUType>& interfacesLower()
-            {
-                return interfacesLower_;
-            }
-
-
             const Field<DType>& diag() const;
             const Field<LUType>& upper() const;
             const Field<LUType>& lower() const;
             const Field<Type>& source() const;
 
-            const FieldField<Field, LUType>& interfacesUpper() const
+            const FieldField<Field, LUType>& interfacesUpper() const noexcept
             {
                 return interfacesUpper_;
             }
 
-            const FieldField<Field, LUType>& interfacesLower() const
+            const FieldField<Field, LUType>& interfacesLower() const noexcept
             {
                 return interfacesLower_;
             }
 
 
+            Field<DType>& diag();
+            Field<LUType>& upper();
+            Field<LUType>& lower();
+            Field<Type>& source();
+
+            FieldField<Field, LUType>& interfacesUpper() noexcept
+            {
+                return interfacesUpper_;
+            }
+
+            FieldField<Field, LUType>& interfacesLower() noexcept
+            {
+                return interfacesLower_;
+            }
+
+
+        // Characteristics
+
             bool hasDiag() const noexcept
             {
-                return (diagPtr_);
+                return bool(diagPtr_);
             }
 
             bool hasUpper() const noexcept
             {
-                return (upperPtr_);
+                return bool(upperPtr_);
             }
 
             bool hasLower() const noexcept
             {
-                return (lowerPtr_);
+                return bool(lowerPtr_);
             }
 
             bool hasSource() const noexcept
             {
-                return (sourcePtr_);
+                return bool(sourcePtr_);
             }
 
             bool diagonal() const noexcept

@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
-    Copyright (C) 2019-2021 OpenCFD Ltd.
+    Copyright (C) 2019-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -60,79 +60,56 @@ Foam::lduMatrix::normTypesNames_
 
 Foam::lduMatrix::lduMatrix(const lduMesh& mesh)
 :
-    lduMesh_(mesh),
-    lowerPtr_(nullptr),
-    diagPtr_(nullptr),
-    upperPtr_(nullptr)
+    lduMesh_(mesh)
 {}
 
 
 Foam::lduMatrix::lduMatrix(const lduMatrix& A)
 :
-    lduMesh_(A.lduMesh_),
-    lowerPtr_(nullptr),
-    diagPtr_(nullptr),
-    upperPtr_(nullptr)
+    lduMesh_(A.lduMesh_)
 {
     if (A.lowerPtr_)
     {
-        lowerPtr_ = new scalarField(*(A.lowerPtr_));
+        lowerPtr_ = std::make_unique<scalarField>(*(A.lowerPtr_));
     }
 
     if (A.diagPtr_)
     {
-        diagPtr_ = new scalarField(*(A.diagPtr_));
+        diagPtr_ = std::make_unique<scalarField>(*(A.diagPtr_));
     }
 
     if (A.upperPtr_)
     {
-        upperPtr_ = new scalarField(*(A.upperPtr_));
+        upperPtr_ = std::make_unique<scalarField>(*(A.upperPtr_));
     }
 }
 
 
 Foam::lduMatrix::lduMatrix(lduMatrix& A, bool reuse)
 :
-    lduMesh_(A.lduMesh_),
-    lowerPtr_(nullptr),
-    diagPtr_(nullptr),
-    upperPtr_(nullptr)
+    lduMesh_(A.lduMesh_)
 {
     if (reuse)
     {
-        if (A.lowerPtr_)
-        {
-            lowerPtr_ = A.lowerPtr_;
-            A.lowerPtr_ = nullptr;
-        }
-
-        if (A.diagPtr_)
-        {
-            diagPtr_ = A.diagPtr_;
-            A.diagPtr_ = nullptr;
-        }
-
-        if (A.upperPtr_)
-        {
-            upperPtr_ = A.upperPtr_;
-            A.upperPtr_ = nullptr;
-        }
+        lowerPtr_ = std::move(A.lowerPtr_);
+        diagPtr_ = std::move(A.diagPtr_);
+        upperPtr_ = std::move(A.upperPtr_);
     }
     else
     {
         if (A.lowerPtr_)
         {
-            lowerPtr_ = new scalarField(*(A.lowerPtr_));
+            lowerPtr_ = std::make_unique<scalarField>(*(A.lowerPtr_));
         }
 
         if (A.diagPtr_)
         {
-            diagPtr_ = new scalarField(*(A.diagPtr_));
+            diagPtr_ = std::make_unique<scalarField>(*(A.diagPtr_));
         }
 
         if (A.upperPtr_)
         {
-            upperPtr_ = new scalarField(*(A.upperPtr_));
+            upperPtr_ = std::make_unique<scalarField>(*(A.upperPtr_));
         }
     }
 }
@@ -140,10 +117,7 @@ Foam::lduMatrix::lduMatrix(lduMatrix& A, bool reuse)
 
 Foam::lduMatrix::lduMatrix(const lduMesh& mesh, Istream& is)
 :
-    lduMesh_(mesh),
-    lowerPtr_(nullptr),
-    diagPtr_(nullptr),
-    upperPtr_(nullptr)
+    lduMesh_(mesh)
 {
     Switch hasLow(is);
     Switch hasDiag(is);
@@ -151,151 +125,20 @@ Foam::lduMatrix::lduMatrix(const lduMesh& mesh, Istream& is)
 
     if (hasLow)
     {
-        lowerPtr_ = new scalarField(is);
+        lowerPtr_ = std::make_unique<scalarField>(is);
     }
     if (hasDiag)
     {
-        diagPtr_ = new scalarField(is);
+        diagPtr_ = std::make_unique<scalarField>(is);
     }
     if (hasUp)
     {
-        upperPtr_ = new scalarField(is);
+        upperPtr_ = std::make_unique<scalarField>(is);
     }
 }
 
 
-Foam::lduMatrix::~lduMatrix()
-{
-    if (lowerPtr_)
-    {
-        delete lowerPtr_;
-    }
-
-    if (diagPtr_)
-    {
-        delete diagPtr_;
-    }
-
-    if (upperPtr_)
-    {
-        delete upperPtr_;
-    }
-}
-
-
-Foam::scalarField& Foam::lduMatrix::lower()
-{
-    if (!lowerPtr_)
-    {
-        if (upperPtr_)
-        {
-            lowerPtr_ = new scalarField(*upperPtr_);
-        }
-        else
-        {
-            lowerPtr_ = new scalarField(lduAddr().lowerAddr().size(), Zero);
-        }
-    }
-
-    return *lowerPtr_;
-}
-
-
-Foam::scalarField& Foam::lduMatrix::diag()
-{
-    if (!diagPtr_)
-    {
-        diagPtr_ = new scalarField(lduAddr().size(), Zero);
-    }
-
-    return *diagPtr_;
-}
-
-
-Foam::scalarField& Foam::lduMatrix::upper()
-{
-    if (!upperPtr_)
-    {
-        if (lowerPtr_)
-        {
-            upperPtr_ = new scalarField(*lowerPtr_);
-        }
-        else
-        {
-            upperPtr_ = new scalarField(lduAddr().lowerAddr().size(), Zero);
-        }
-    }
-
-    return *upperPtr_;
-}
-
-
-Foam::scalarField& Foam::lduMatrix::lower(const label nCoeffs)
-{
-    if (!lowerPtr_)
-    {
-        if (upperPtr_)
-        {
-            lowerPtr_ = new scalarField(*upperPtr_);
-        }
-        else
-        {
-            lowerPtr_ = new scalarField(nCoeffs, Zero);
-        }
-    }
-
-    return *lowerPtr_;
-}
-
-
-Foam::scalarField& Foam::lduMatrix::diag(const label size)
-{
-    if (!diagPtr_)
-    {
-        diagPtr_ = new scalarField(size, Zero);
-    }
-
-    return *diagPtr_;
-}
-
-
-Foam::scalarField& Foam::lduMatrix::upper(const label nCoeffs)
-{
-    if (!upperPtr_)
-    {
-        if (lowerPtr_)
-        {
-            upperPtr_ = new scalarField(*lowerPtr_);
-        }
-        else
-        {
-            upperPtr_ = new scalarField(nCoeffs, Zero);
-        }
-    }
-
-    return *upperPtr_;
-}
-
-
-const Foam::scalarField& Foam::lduMatrix::lower() const
-{
-    if (!lowerPtr_ && !upperPtr_)
-    {
-        FatalErrorInFunction
-            << "lowerPtr_ or upperPtr_ unallocated"
-            << abort(FatalError);
-    }
-
-    if (lowerPtr_)
-    {
-        return *lowerPtr_;
-    }
-    else
-    {
-        return *upperPtr_;
-    }
-}
-
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 const Foam::scalarField& Foam::lduMatrix::diag() const
 {
@@ -310,23 +153,149 @@ const Foam::scalarField& Foam::lduMatrix::diag() const
 }
 
 
-const Foam::scalarField& Foam::lduMatrix::upper() const
+Foam::scalarField& Foam::lduMatrix::diag()
 {
-    if (!lowerPtr_ && !upperPtr_)
+    if (!diagPtr_)
     {
-        FatalErrorInFunction
-            << "lowerPtr_ or upperPtr_ unallocated"
-            << abort(FatalError);
+        diagPtr_ =
+            std::make_unique<scalarField>(lduAddr().size(), Foam::zero{});
     }
 
+    return *diagPtr_;
+}
+
+
+Foam::scalarField& Foam::lduMatrix::diag(const label size)
+{
+    if (!diagPtr_)
+    {
+        diagPtr_ = std::make_unique<scalarField>(size, Foam::zero{});
+    }
+
+    return *diagPtr_;
+}
+
+
+const Foam::scalarField& Foam::lduMatrix::upper() const
+{
     if (upperPtr_)
     {
         return *upperPtr_;
     }
     else
     {
+        if (!lowerPtr_)
+        {
+            FatalErrorInFunction
+                << "lowerPtr_ and upperPtr_ unallocated"
+                << abort(FatalError);
+        }
+
         return *lowerPtr_;
     }
+}
+
+
+Foam::scalarField& Foam::lduMatrix::upper()
+{
+    if (!upperPtr_)
+    {
+        if (lowerPtr_)
+        {
+            upperPtr_ = std::make_unique<scalarField>(*lowerPtr_);
+        }
+        else
+        {
+            upperPtr_ =
+                std::make_unique<scalarField>
+                (
+                    lduAddr().lowerAddr().size(),
+                    Foam::zero{}
+                );
+        }
+    }
+
+    return *upperPtr_;
+}
+
+
+Foam::scalarField& Foam::lduMatrix::upper(const label nCoeffs)
+{
+    if (!upperPtr_)
+    {
+        if (lowerPtr_)
+        {
+            upperPtr_ = std::make_unique<scalarField>(*lowerPtr_);
+        }
+        else
+        {
+            upperPtr_ = std::make_unique<scalarField>(nCoeffs, Foam::zero{});
+        }
+    }
+
+    return *upperPtr_;
+}
+
+
+const Foam::scalarField& Foam::lduMatrix::lower() const
+{
+    if (lowerPtr_)
+    {
+        return *lowerPtr_;
+    }
+    else
+    {
+        if (!upperPtr_)
+        {
+            FatalErrorInFunction
+                << "lowerPtr_ and upperPtr_ unallocated"
+                << abort(FatalError);
+        }
+
+        return *upperPtr_;
+    }
+}
+
+
+Foam::scalarField& Foam::lduMatrix::lower()
+{
+    if (!lowerPtr_)
+    {
+        if (upperPtr_)
+        {
+            lowerPtr_ = std::make_unique<scalarField>(*upperPtr_);
+        }
+        else
+        {
+            lowerPtr_ =
+                std::make_unique<scalarField>
+                (
+                    lduAddr().lowerAddr().size(),
+                    Foam::zero{}
+                );
+        }
+    }
+
+    return *lowerPtr_;
+}
+
+
+Foam::scalarField& Foam::lduMatrix::lower(const label nCoeffs)
+{
+    if (!lowerPtr_)
+    {
+        if (upperPtr_)
+        {
+            lowerPtr_ = std::make_unique<scalarField>(*upperPtr_);
+        }
+        else
+        {
+            lowerPtr_ =
+                std::make_unique<scalarField>(nCoeffs, Foam::zero{});
+        }
+    }
+
+    return *lowerPtr_;
 }
 
 
@@ -383,7 +352,8 @@ Foam::Ostream& Foam::operator<<(Ostream& os, const lduMatrix& ldum)
     Switch hasDiag = ldum.hasDiag();
     Switch hasUp = ldum.hasUpper();
 
-    os  << hasLow << token::SPACE << hasDiag << token::SPACE
+    os  << hasLow << token::SPACE
+        << hasDiag << token::SPACE
         << hasUp << token::SPACE;
 
     if (hasLow)

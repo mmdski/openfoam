@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2017 OpenFOAM Foundation
-    Copyright (C) 2016-2023 OpenCFD Ltd.
+    Copyright (C) 2016-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -89,8 +89,14 @@ class lduMatrix
         //const lduMesh& lduMesh_;
         std::reference_wrapper<const lduMesh> lduMesh_;
 
-        //- Coefficients (not including interfaces)
-        scalarField *lowerPtr_, *diagPtr_, *upperPtr_;
+        //- Diagonal coefficients
+        std::unique_ptr<scalarField> diagPtr_;
+
+        //- Off-diagonal coefficients (not including interfaces)
+        std::unique_ptr<scalarField> lowerPtr_;
+
+        //- Off-diagonal coefficients (not including interfaces)
+        std::unique_ptr<scalarField> upperPtr_;
 
 
 public:
@@ -590,8 +596,7 @@ public:
 
     // Constructors
 
-        //- Construct given an LDU addressed mesh.
-        //  The coefficients are initially empty for subsequent setting.
+        //- Construct (without coefficients) for an LDU addressed mesh.
         lduMatrix(const lduMesh&);
 
         //- Construct as copy
@@ -606,7 +611,7 @@ public:
 
 
     //- Destructor
-    ~lduMatrix();
+    ~lduMatrix() = default;
 
 
     // Member Functions
@@ -640,35 +645,37 @@ public:
 
         // Access to coefficients
 
-            scalarField& lower();
-            scalarField& diag();
-            scalarField& upper();
-
-            // Size with externally provided sizes (for constructing with 'fake'
-            // mesh in GAMG)
-
-                scalarField& lower(const label size);
-                scalarField& diag(const label nCoeffs);
-                scalarField& upper(const label nCoeffs);
-
-
-            const scalarField& lower() const;
             const scalarField& diag() const;
             const scalarField& upper() const;
+            const scalarField& lower() const;
+
+            scalarField& diag();
+            scalarField& upper();
+            scalarField& lower();
+
+            // Size with externally provided sizes
+            // (for constructing with 'fake' mesh in GAMG)
+
+            scalarField& diag(const label size);
+            scalarField& upper(const label nCoeffs);
+            scalarField& lower(const label nCoeffs);
+
+
+    // Characteristics
 
             bool hasDiag() const noexcept
             {
-                return (diagPtr_);
+                return bool(diagPtr_);
             }
 
             bool hasUpper() const noexcept
             {
-                return (upperPtr_);
+                return bool(upperPtr_);
             }
 
             bool hasLower() const noexcept
             {
-                return (lowerPtr_);
+                return bool(lowerPtr_);
             }
 
             bool diagonal() const noexcept
