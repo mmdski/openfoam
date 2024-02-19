@@ -6,7 +6,7 @@
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
     Copyright (C) 2011-2016 OpenFOAM Foundation
-    Copyright (C) 2016-2022 OpenCFD Ltd.
+    Copyright (C) 2016-2024 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -34,12 +34,14 @@ Description
     Renumbers the cell list in order to reduce the bandwidth, reading and
     renumbering all fields from all the time directories.
 
-    By default uses bandCompression (CuthillMcKee) but will
-    read system/renumberMeshDict if -dict option is present
+    By default uses bandCompression (Cuthill-McKee) or the method
+    specified by the -method option, but will read
+    system/renumberMeshDict if -dict option is present
 
 \*---------------------------------------------------------------------------*/
 
 #include "argList.H"
+#include "timeSelector.H"
 #include "IOobjectList.H"
 #include "fvMesh.H"
 #include "polyTopoChange.H"
@@ -59,11 +61,6 @@ Description
 #include "hexRef8Data.H"
 #include "regionProperties.H"
 #include "polyMeshTools.H"
-
-#ifdef HAVE_ZOLTAN
-    #include "zoltanRenumber.H"
-#endif
-
 
 using namespace Foam;
 
@@ -569,7 +566,7 @@ labelList regionRenumber
         const bool oldParRun = UPstream::parRun(false);
 
         // Per region do a reordering.
-        fvMeshSubset subsetter(mesh, regioni, cellToRegion);
+        fvMeshSubset subsetter(mesh, regionToCells[regioni]);
 
         const fvMesh& subMesh = subsetter.subMesh();
 
@@ -582,11 +579,13 @@ labelList regionRenumber
         UPstream::parRun(oldParRun);  // Restore parallel state
 
 
+        // Note: cellMap will be identical to regionToCells[regioni]
         const labelList& cellMap = subsetter.cellMap();
 
-        forAll(subCellOrder, i)
+        for (const label idx : subCellOrder)
         {
-            cellOrder[celli++] = cellMap[subCellOrder[i]];
+            cellOrder[celli] = cellMap[idx];
+            ++celli;
         }
     }
     Info<< endl;
@@ -601,33 +600,51 @@ int main(int argc, char *argv[])
 {
     argList::addNote
     (
-        "Renumber mesh cells to reduce the bandwidth"
+        "Renumber mesh cells to reduce the bandwidth. Use the -lib option or"
+        " dictionary 'libs' entry to load additional libraries"
     );
+    timeSelector::addOptions();
 
     #include "addAllRegionOptions.H"
     #include "addOverwriteOption.H"
-    #include "addTimeOptions.H"
 
     argList::addOption("dict", "file", "Alternative renumberMeshDict");
 
     argList::addBoolOption
     (
         "frontWidth",
-        "Calculate the rms of the front-width"
+        "Calculate the RMS of the front-width"
+    );
+
+    argList::addBoolOption
+    (
+        "list-methods",
+        "List available renumbering methods"
+    );
+
+    argList::addOption
+    (
+        "method",
+        "name",
+        "Specify renumber method (default: CuthillMcKee) without dictionary"
     );
 
     argList::noFunctionObjects();  // Never use function objects
 
     #include "setRootCase.H"
+
+    if (args.found("list-methods"))
+    {
+        Info<< nl
+            << "Available renumber methods:" << nl
+            << "    " << flatOutput(renumberMethod::supportedMethods()) << nl
+            << nl;
+        return 0;
+    }
+
     #include "createTime.H"
     #include "getAllRegionOptions.H"
 
-    // Force linker to include zoltan symbols. This section is only needed since
-    // Zoltan is a static library
-    #ifdef HAVE_ZOLTAN
-        Info<< "renumberMesh built with zoltan support." << nl << endl;
-        (void)zoltanRenumber::typeName;
-    #endif
 
     // Get times list
     instantList Times = runTime.times();
@@ -642,6 +659,9 @@ int main(int argc, char *argv[])
     const bool readDict = args.found("dict");
     const bool doFrontWidth = args.found("frontWidth");
     const bool overwrite = args.found("overwrite");
+
+    word renumberMethodName;
+    args.readIfPresent("method", renumberMethodName);
 
 
     for (fvMesh& mesh : meshes)
@@ -695,7 +715,7 @@ int main(int argc, char *argv[])
         label blockSize = 0;
 
         // Construct renumberMethod
-        autoPtr<IOdictionary> renumberDictPtr;
+        dictionary renumberDict;
         autoPtr<renumberMethod> renumberPtr;
 
         if (readDict)
@@ -705,8 +725,7 @@ int main(int argc, char *argv[])
 
             Info<< "Renumber according to " << dictIO.name() << nl << endl;
 
-            renumberDictPtr.reset(new IOdictionary(dictIO));
-            const IOdictionary& renumberDict = renumberDictPtr();
+            renumberDict = IOdictionary::readContents(dictIO);
 
             renumberPtr = renumberMethod::New(renumberDict);
 
@@ -721,7 +740,7 @@ int main(int argc, char *argv[])
                     << endl;
             }
 
-            blockSize = renumberDict.getOrDefault("blockSize", 0);
+            blockSize = renumberDict.getOrDefault<label>("blockSize", 0);
             if (blockSize > 0)
             {
                 Info<< "Ordering cells into regions of size " << blockSize
@@ -757,13 +776,20 @@ int main(int argc, char *argv[])
         }
         else
         {
-            Info<< "Using default renumberMethod." << nl << endl;
-            dictionary renumberDict;
-            renumberPtr.reset(new CuthillMcKeeRenumber(renumberDict));
+            if (!renumberMethodName.empty())
+            {
+                renumberDict.add("method", renumberMethodName);
+                renumberPtr = renumberMethod::New(renumberDict);
+            }
+            else
+            {
+                renumberPtr.reset(new CuthillMcKeeRenumber);
+                Info<< "Using default renumberMethod" << nl << nl;
+            }
         }
 
-        Info<< "Selecting renumberMethod " << renumberPtr().type() << nl
-            << endl;
+        Info<< "Selecting renumberMethod: "
+            << renumberPtr().type() << nl << endl;
 
 
 
@@ -910,7 +936,7 @@ int main(int argc, char *argv[])
             Info<< "nBlocks   = " << nBlocks << endl;
 
             // Read decompositionMethod dictionary
-            dictionary decomposeDict(renumberDictPtr().subDict("blockCoeffs"));
+            dictionary decomposeDict(renumberDict.subDict("blockCoeffs"));
             decomposeDict.set("numberOfSubdomains", nBlocks);
 
             const bool oldParRun = UPstream::parRun(false);
@@ -1366,50 +1392,25 @@ int main(int argc, char *argv[])
                 << "Written current cellID and origCellID as volScalarField"
                 << " for use in postprocessing." << nl << endl;
 
-            labelIOList
+            IOobject meshMapIO
             (
-                IOobject
-                (
-                    "cellMap",
-                    mesh.facesInstance(),
-                    polyMesh::meshSubDir,
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    IOobject::NO_REGISTER
-                ),
-                map().cellMap()
-            ).write();
+                "map-name",
+                mesh.facesInstance(),
+                polyMesh::meshSubDir,
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                IOobject::NO_REGISTER
+            );
 
-            labelIOList
-            (
-                IOobject
-                (
-                    "faceMap",
-                    mesh.facesInstance(),
-                    polyMesh::meshSubDir,
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    IOobject::NO_REGISTER
-                ),
-                map().faceMap()
-            ).write();
+            meshMapIO.resetHeader("cellMap");
+            IOListRef<label>(meshMapIO, map().cellMap()).write();
 
-            labelIOList
-            (
-                IOobject
-                (
-                    "pointMap",
-                    mesh.facesInstance(),
-                    polyMesh::meshSubDir,
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE,
-                    IOobject::NO_REGISTER
-                ),
-                map().pointMap()
-            ).write();
+            meshMapIO.resetHeader("faceMap");
+            IOListRef<label>(meshMapIO, map().faceMap()).write();
+
+            meshMapIO.resetHeader("pointMap");
+            IOListRef<label>(meshMapIO, map().pointMap()).write();
         }
     }
 

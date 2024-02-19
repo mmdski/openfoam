@@ -50,7 +50,7 @@ namespace Foam
 Foam::springRenumber::springRenumber(const dictionary& dict)
 :
     renumberMethod(dict),
-    coeffsDict_(dict.optionalSubDict(typeName+"Coeffs")),
+    coeffsDict_(dict.optionalSubDict(typeName + "Coeffs")),
     maxIter_(coeffsDict_.get<label>("maxIter")),
     maxCo_(coeffsDict_.get<scalar>("maxCo")),
     freezeFraction_(coeffsDict_.get<scalar>("freezeFraction"))

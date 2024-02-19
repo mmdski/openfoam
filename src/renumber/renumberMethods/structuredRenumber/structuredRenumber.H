@@ -52,7 +52,7 @@ namespace Foam
 template<class Type> class topoDistanceData;
 
 /*---------------------------------------------------------------------------*\
-                   Class structuredRenumber Declaration
+                     Class structuredRenumber Declaration
 \*---------------------------------------------------------------------------*/
 
 class structuredRenumber
@@ -63,8 +63,7 @@ public:
 
     // Public Classes
 
-        //- Less function class that can be used for sorting according to
-        //  column and layer
+        //- Function class for sorting according to column and layer
         class layerLess
         {
             const bool depthFirst_;
@@ -85,9 +84,11 @@ public:
                 distance_(distance)
             {}
 
-            bool operator()(const label a, const label b);
+            bool operator()(const label a, const label b) const;
         };
 
+
+private:
 
     // Private Data
 
